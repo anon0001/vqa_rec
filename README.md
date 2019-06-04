@@ -1,6 +1,6 @@
 This repository replicates the results of the paper "Investigating visual reconstruction for multimodal tasks".
 
-##Requirements
+### Requirements
 Python 3.6
 fastai 1.0.52     
 torch 1.1.0
@@ -45,7 +45,15 @@ python main.py  \
                     --ckpt $(basename $output/model* .pth)
 ```
 
-5 questions will be picked randomly, answered by the model and visually reconstructed. 
-
+3 questions will be picked randomly, answered by the model and visually reconstructed. Input image with a black box (as shown in figure 5 of the paper) and reconstructed image are saved on the disk as prompted.
+Example of output :
+```
+Question : what is the green vegetation covering
+GT :  ground
+Model answer : ground
+Saving original image under name :  0_orig.jpg
+Saving reconstructed image under name :  0.jpg
+```
+<img src="https://i.imgur.com/6RumopL.jpg" border="1" />
 
 
