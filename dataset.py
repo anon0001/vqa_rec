@@ -320,11 +320,12 @@ class VQAFeatureDataset(Dataset):
         for r in pre_pools.keys():
             pre_pools[r] = pre_pools[r].astype(np.float32)
         image = image.astype(np.float32)
+        image_box = image_box.astype(np.float32)
 
 
 
 
-        return [question_id, pre_pools, image, question], [image, target]
+        return [question_id, pre_pools, image_box, question], [image, target]
         # return [question_id, pre_pools, image, question], [image_orig,target]
 
     def __len__(self):

@@ -1,17 +1,17 @@
-
 from unet import FeatureLoss
 from torchvision import transforms
 from fastai.vision import *
 from fastai.callbacks import *
 import plot
 from PIL import Image, ImageDraw
-
+import warnings
+warnings.filterwarnings("ignore")
 
 def NormalizeInverse(input):
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
-        mean = torch.as_tensor(mean)
-        std = torch.as_tensor(std)
+        mean = torch.tensor(mean)
+        std = torch.tensor(std)
 
         std_inv = 1 / (std + 1e-7)
         mean_inv = -mean * std_inv
@@ -227,36 +227,40 @@ def evaluate(model, dataloader, eval_dset, gamma_r, use_feat_loss, output, ckpt,
     if valid:
         print(learn.validate())
     else:
-        correct = 0
         label2ans = dataloader.dataset.label2ans
         dictionary = dataloader.dataset.dictionary
-        #get a random question
-        index = np.random.randint(len(eval_dset))
-        batch = eval_dset.__getitem__(index)
+        #get 3 random question
+        for i in range(3):
+            index = np.random.randint(len(eval_dset))
+            batch = eval_dset.__getitem__(index)
 
-        #print question and GT
-        q = batch[0][3]
-        img = batch[1][0]
-        gt = batch[1][1]
-        gt = torch.max(gt, 0)[1].data
-        print("Question :", " ".join(dictionary.detokenize(q[q != dictionary.padding_idx])))
-        print("GT : ", label2ans[gt])
+            #print question and GT
+            q = batch[0][3]
+            gt = batch[1][1]
+            gt = torch.max(gt, 0)[1].data
+            print("Question :", " ".join(dictionary.detokenize(q[q != dictionary.padding_idx])))
+            print("GT : ", label2ans[gt])
 
-        #expanding dims as we only make a forward of one question
-        for r in batch[0][1].keys():
-            batch[0][1][r] = torch.from_numpy(batch[0][1][r]).unsqueeze(0)
-        batch[0][3] = torch.from_numpy(batch[0][3]).unsqueeze(0)
+            #expanding dims as we only make a forward of one question
+            for r in batch[0][1].keys(): #prepools
+                batch[0][1][r] = torch.from_numpy(batch[0][1][r]).unsqueeze(0)
+            batch[0][2] = torch.from_numpy(batch[0][2]).unsqueeze(0) #image input
+            batch[0][3] = batch[0][3].unsqueeze(0) #question
+            batch[1][0] = torch.from_numpy(batch[1][0]) #image target
 
-        #run
-        logits, g = learn.pred_batch(batch=batch)
-        prediction = torch.max(logits, 1)[1].data
-        print("Model answer :", label2ans[prediction[0]])
-        print("Saving original image under name : ", str(index)+"_orig.jpg")
-        print("Saving reconstructed image under name : ", str(index)+".jpg")
-        im = NormalizeInverse(g[0].cpu().detach().data)
-        im.save(str(index)+".jpg", "JPEG")
-        im = NormalizeInverse(img.cpu().data)
-        im.save(str(index)+"_orig.jpg", "JPEG")
+            #run
+            logits, g = learn.pred_batch(batch=batch)
+            prediction = torch.max(logits, 1)[1].data
+
+            #save reconstruction and print result
+            print("Model answer :", label2ans[prediction[0]])
+            print("Saving original image under name : ", str(i)+"_orig.jpg")
+            print("Saving reconstructed image under name : ", str(i)+".jpg")
+            im = NormalizeInverse(g[0].cpu().detach().data)
+            im.save(str(i)+".jpg", "JPEG")
+            im = NormalizeInverse(batch[0][2].squeeze().cpu().data)
+            im.save(str(i)+"_orig.jpg", "JPEG")
+            print("###########")
 
         sys.exit()
 
