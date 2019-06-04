@@ -7,17 +7,17 @@ torch 1.1.0
 Pillow 6.0.0      
 tqdm 4.31.1     
 
-##Setup
+### Setup
 
-First, download the VQA dataset available at the [following mirror](http://google.com). Create a data folder and uncompress the files in it.
+First, download the VQA dataset available at the [following mirror](https://www.dropbox.com/s/xt6k7aade4o4xrb/data_emnlp2019.zip?dl=1). Create a data folder and uncompress the files in it.
 Then, you need to download the original ms-coco train2014 and val2014 images from [the official website](http://cocodataset.org/#download).
 Place both folders (or symlink) into data
 
-##Training
+### Training
 
 You can simply start a training (skip connection-VGG) of 5 epochs with the following command. 
 Checkpoint will be stored in the "out" folder. Features of "layer 4" (res4f) of a resnet-18 will be used.
-```python
+```
 output=out
 python main.py  \
                     --size 64  \
@@ -33,9 +33,9 @@ python main.py  \
 ```
 The data will be automatically preprocessed : resizing one and for all coco images to 64x64 and pre-extracting all skip-connections as described in the section 4.2 of the paper. 32 GO of free disk space are required. It should take around 12min/epoch with a GeForce GTX 1080.
 
-##Inference
+### Inference
 To print out the output of the model, simply type:
-```python
+```
 output=out
 python main.py  \
                     --size 64  \
