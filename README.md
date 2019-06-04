@@ -42,6 +42,7 @@ python main.py  \
                     --reconstruction True  \
                     --layer 4  \
                     --eval True \
+                    --output $output \
                     --ckpt $(basename $output/model* .pth)
 ```
 
